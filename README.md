@@ -329,11 +329,11 @@ Overall, the findings provide a useful starting point for improving patient flow
 I created an interactive dashboard which includes all the visuals discussed above in this project with relevant filters. Below is a snippet: 
 
 
-<video controls src="Dashboard_gif/Dashboard_1.mp4" title="Title"></video>
+![alt text](Wait_time_px_pic/Dashboard_1.png)
 **Page 1**
 
 
 
 
-<video controls src="Dashboard_gif/Dashboard_2.mp4" title="Title"></video>
+![alt text](Wait_time_px_pic/Dashboard_2.png)
 **Page 2**

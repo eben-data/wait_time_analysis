@@ -14,36 +14,35 @@ CREATE TABLE patient_time_fact(
 
 
 COPY patient_time_fact
-FROM 'C:\DATA ANALYTICS\wait_time_analysis\healthcare_analytics_patient_flow_data (1).csv'
+FROM 'C:\DATA ANALYTICS\wait_time_analysis\Dataset\healthcare_analytics_patient_flow_data (1).csv'
 WITH (FORMAT csv, HEADER TRUE, DELIMITER ',', ENCODING 'UTF8');
 
 SELECT * FROM patient_time_fact;
 
 
 /* This exploratory analysis would seek to answer the following questions:
-1. Average wait time per referral department
-2. Average satisfaction score per referral department
+1. Average wait time per referral department/Number of patients with prolonged wait time per department?
+2. Average satisfaction score per referral department/Number of dissatisfied patients per department?
 3. Is there a relationship between wait time and satisfaction score?
 4. What time of the day is associated with longer wait time?
-5. Is the wait time longer for admitted patients or non_admitted patients?
+5. What months of the year are associated with longer wait time and poorer satisfaction scores?
 */
 
---1. What departments are associated with longer wait times?
+--1. What is the average wait time by department?
 SELECT
     Referral_department,
-    ROUND(AVG(Patient_wait_time), 2) AS avg_wait_time,
-    COUNT(patient_id) AS number_of_patients
+    ROUND(AVG(Patient_wait_time), 2) AS avg_wait_time
 FROM
     patient_time_fact
 WHERE
     Referral_department <> 'None'
 GROUP BY
     Referral_department
-ORDER BY number_of_patients DESC;
+ORDER BY avg_wait_time DESC;
 
 
 
--- 1b Number of patients with wait time >= 50 per departmet
+-- 1b Number of patients with wait time >= 50 by departmet
 SELECT
     COUNT(patient_id) AS number_of_patients,
     Referral_department
@@ -53,7 +52,8 @@ WHERE
     patient_wait_time >= 50
 AND
     referral_department <> 'None'
-GROUP BY referral_department;
+GROUP BY referral_department
+ORDER BY number_of_patients DESC;
 
 
 -- 2. What departments are associated with poorer satisfaction scores?
@@ -92,13 +92,12 @@ ORDER BY patient_number DESC;
 SELECT
     Referral_department,
     ROUND(AVG(Patient_wait_time), 2) AS avg_wait_time,
-    ROUND(AVG(Patient_satisfaction_score), 2) AS avg_patient_satisfaction_score,
-    COUNT(Patient_ID) AS patient_per_referral_dept
+    ROUND(AVG(Patient_satisfaction_score), 2) AS avg_patient_satisfaction_score
 FROM
     patient_time_fact
 WHERE
     referral_department <> 'None'
-GROUP BY referral_department
+GROUP BY referral_department;
 
 -- 3a. Relationship with poor satisfaction scores alone
 
@@ -123,23 +122,6 @@ FROM
     patient_time_fact
 WHERE
     referral_department <> 'None'
-AND
-    patient_wait_time >= 50
-GROUP BY referral_department
-ORDER BY patient_per_referral_dept DESC;
-
-
--- 3c Relationship with both poor satisfaction scores and extended wait time
-
-SELECT
-    Referral_department,
-    COUNT(Patient_ID) AS patient_per_referral_dept
-FROM
-    patient_time_fact
-WHERE
-    referral_department <> 'None'
-AND
-    patient_satisfaction_score <= 3
 AND
     patient_wait_time >= 50
 GROUP BY referral_department
@@ -297,3 +279,13 @@ WHERE
 GROUP BY
     Patient_admission_month
 ORDER BY patient_number DESC;
+
+
+SELECT
+    COUNT(Patient_ID)
+FROM
+    patient_time_fact
+WHERE
+    patient_satisfaction_score IS NULL
+GROUP BY
+    Referral_department;
